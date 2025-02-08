@@ -1,57 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RugCheck API Integration</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
+<script>
+    async function checkRug() {
+        const contractAddress = document.getElementById("contract").value.trim();
+        if (!contractAddress) {
+            alert("Please enter a contract address.");
+            return;
         }
-        input, button {
-            padding: 10px;
-            margin: 10px;
-        }
-        #rugcheck-result {
-            margin-top: 20px;
-            font-size: 16px;
-        }
-    </style>
-</head>
-<body>
-    <h2>Check if a Smart Contract is a Rug Pull</h2>
-    <input type="text" id="contract" placeholder="Enter Contract Address">
-    <button onclick="checkRug()">Check</button>
-    <div id="rugcheck-result"></div>
 
-    <script>
-        async function checkRug() {
-            const contractAddress = document.getElementById("contract").value.trim();
-            if (!contractAddress) {
-                alert("Please enter a contract address.");
-                return;
+        try {
+            const response = await fetch(`https://corsproxy.io/?https://api.rugcheck.xyz/api/rugcheck/${contractAddress}`);
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById("rugcheck-result").innerHTML = `
+                    <h3>Contract: ${contractAddress}</h3>
+                    <p><strong>Score:</strong> ${data.data.score}</p>
+                    <p><strong>Analysis:</strong> ${data.data.analysis}</p>
+                `;
+            } else {
+                document.getElementById("rugcheck-result").innerHTML = `<p style="color: red;">Error: ${data.message}</p>`;
             }
-
-            try {
-                const response = await fetch(`https://corsproxy.io/?https://api.rugcheck.xyz/api/rugcheck/${contractAddress}`);
-                const data = await response.json();
-
-                if (data.success) {
-                    document.getElementById("rugcheck-result").innerHTML = `
-                        <h3>Contract: ${contractAddress}</h3>
-                        <p><strong>Score:</strong> ${data.data.score}</p>
-                        <p><strong>Analysis:</strong> ${data.data.analysis}</p>
-                    `;
-                } else {
-                    document.getElementById("rugcheck-result").innerHTML = `<p style="color: red;">Error: ${data.message}</p>`;
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                document.getElementById("rugcheck-result").innerHTML = `<p style="color: red;">Failed to fetch data</p>`;
-            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            document.getElementById("rugcheck-result").innerHTML = `<p style="color: red;">Failed to fetch data</p>`;
         }
-    </script>
-</body>
-</html>
+    }
+</script>
